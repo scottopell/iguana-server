@@ -12,8 +12,8 @@
 		"db": {
 			"host": "localhost",
 			"username": "root",
-			"password": "snowman42",
-			"database": "lotusod"
+			"password": "dogline",
+			"database": "iguana"
 		}
 	},
 	"site": [
@@ -22,7 +22,7 @@
 			"api_slug": "marco",
 			"artist_name": "Marco Benevento",
 			"archive_link": "",
-			"domain_names": ["marcoallday.local", "marcoallday.com", "localhost", "iguana.app.alecgorge.com", "marcoallday.alecgorge.com"],
+			"domain_names": ["marcoallday.local", "marcoallday.com", "iguana.app.alecgorge.com", "marcoallday.alecgorge.com"],
 			"google_analytics": {
 				"id": "UA-46363228-2",
 				"domain": "marcoallday.com"
@@ -33,7 +33,7 @@
 			"api_slug": "lotus",
 			"artist_name": "Lotus",
 			"archive_link": "",
-			"domain_names": ["lotusod.local", "lotusod.com", "lotusod.alecgorge.com"],
+			"domain_names": ["lotusod.local", "lotusod.com","localhost", "lotusod.alecgorge.com"],
 			"google_analytics": {
 				"id": "UA-46363228-1",
 				"domain": "lotusod.com"
