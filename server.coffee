@@ -11,6 +11,7 @@ if environment is "production"
 
 # Module dependencies.
 express     = require "express"
+morgan      = require "morgan"
 path        = require "path"
 app         = express()
 
@@ -30,9 +31,10 @@ models.sync(force: false).
 api         = require "./lib/controllers/api"
 importer    = require "./lib/controllers/importer"
 
-# Express Configuration
-app.configure ->
-  app.use express.logger("dev")
+# Express Middleware config
+#   Morgan config
+logger = morgan("combined")
+app.use logger
 
   # Allow access control origin
   app.use (req, res, next) ->
