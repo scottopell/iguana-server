@@ -15,6 +15,12 @@ morgan      = require "morgan"
 path        = require "path"
 app         = express()
 
+# passport
+
+passport   = require 'passport'
+{Strategy} = require 'passport-local'
+
+
 # db
 models      = require './lib/models'
 config      = require './lib/config'
@@ -103,6 +109,8 @@ app.get '/api/artists/:artist_slug/mp3/:track_id', api.artist_mp3
 app.get '/api/artists/:artist_slug/venues', api.artist_venues
 app.get '/api/artists/:artist_slug/venues/:venue_id', api.single_venue
 app.get '/api/artists/:artist_slug/search', api.search
+
+app.post '/api/users/create', api.signup
 
 app.get '/api/artists/:artist_slug/setlists', api.setlist.setlist
 app.get '/api/artists/:artist_slug/setlists/:setlist_id', api.setlist.show_id
