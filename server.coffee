@@ -42,29 +42,30 @@ importer    = require "./lib/controllers/importer"
 logger = morgan("combined")
 app.use logger
 
-  # Allow access control origin
-  app.use (req, res, next) ->
-    res.set
-      'Access-Control-Allow-Origin': '*'
-      'Access-Control-Allow-Methods': 'GET'
+# Allow access control origin
+app.use (req, res, next) ->
+  res.set
+    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Methods': 'GET'
 
-    next()
+  next()
 
-  app.use (req, res, next) ->
-    res.renderView = (viewName, viewModel) ->
-      suffix = "" # if req.xhr then "" else "_full"
-      res.render viewName + suffix, viewModel
+app.use (req, res, next) ->
+  res.renderView = (viewName, viewModel) ->
+    suffix = "" # if req.xhr then "" else "_full"
+    res.render viewName + suffix, viewModel
 
-    next()
+  next()
 
-  app.use express.bodyParser()
-  app.use express.methodOverride()
+app.use express.bodyParser()
+app.use express.methodOverride()
 
-  app.locals site: config.get 'site'
-  app.set 'view engine', 'jade'
-  app.set 'trust proxy', true
+app.locals site: config.get 'site'
+app.set 'view engine', 'jade'
+app.set 'trust proxy', true
 
-app.configure "development", ->
+
+if environment is 'development'
   app.use express.favicon(path.join(__dirname, "public/favicon.ico"))
 
   if ui is "switz"
@@ -75,12 +76,10 @@ app.configure "development", ->
 
   app.use express.errorHandler()
 
-app.configure "production", ->
+if environment is 'development'
   app.use express.favicon(path.join(__dirname, "public/favicon.ico"))
   app.use express.static(path.join(__dirname, "public"), maxAge: 3600 * 1000)
   app.use express.errorHandler()
-
-app.use app.router
 
 # Routes
 #app.get "/importer/:artist/rebuild_index", importer.rebuild_index
