@@ -3,7 +3,7 @@ nconf = require 'nconf'
 
 nconf.argv()
 	 .env()
-	 .file file: 'config.json'
+	 .file file: './config/config.json'
 
 class Config
 	constructor: () ->
