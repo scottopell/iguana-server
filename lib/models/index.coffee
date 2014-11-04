@@ -1,7 +1,9 @@
 
-Sequelize 		= require('sequelize-mysql').sequelize
-sequelize 		= require('../data/db').seq
-mysql 	 		= require('sequelize-mysql').mysql
+Sequelize = require('sequelize-mysql').sequelize
+sequelize = require('../data/db').seq
+mysql			= require('sequelize-mysql').mysql
+
+User			= require('./user').user
 
 Show = sequelize.define 'Show',
 	title				: Sequelize.STRING(255)
@@ -116,6 +118,7 @@ Year.belongsTo Artist
 Artist.hasMany Year
 
 module.exports =
+	User: User
 	Show: Show
 	Venue: Venue
 	Track: Track
