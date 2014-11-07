@@ -10,10 +10,15 @@ if environment is "production"
   require('graphdat').config { socketFile: '/host_tmp/gd.agent.sock', debug: true }
 
 # Module dependencies.
-express     = require "express"
-morgan      = require "morgan"
-path        = require "path"
-app         = express()
+express          = require "express"
+morgan           = require "morgan"
+bodyParser       = require "body-parser"
+favicon          = require "serve-favicon"
+methodOverride   = require "method-override"
+errorhandler     = require "errorhandler"
+expressValidator = require 'express-validator'
+path             = require "path"
+app              = express()
 
 # passport
 
@@ -25,61 +30,40 @@ passport   = require 'passport'
 models      = require './lib/models'
 config      = require './lib/config'
 
-models.sync(force: false).
-       error((err) ->
+models.sync(force: false)
+      .error((err) ->
         console.log err
         throw err
-       ).
-       success () ->
+      )
+      .success () ->
         console.log 'synced'
 
 # Controllers
 api         = require "./lib/controllers/api"
 importer    = require "./lib/controllers/importer"
 
-# Express Middleware config
-#   Morgan config
-logger = morgan("combined")
-app.use logger
-
-# Allow access control origin
-app.use (req, res, next) ->
-  res.set
-    'Access-Control-Allow-Origin': '*'
-    'Access-Control-Allow-Methods': 'GET'
-
-  next()
-
-app.use (req, res, next) ->
-  res.renderView = (viewName, viewModel) ->
-    suffix = "" # if req.xhr then "" else "_full"
-    res.render viewName + suffix, viewModel
-
-  next()
-
-app.use express.bodyParser()
-app.use express.methodOverride()
-
-app.locals site: config.get 'site'
+app.locals = site: config.get 'site'
 app.set 'view engine', 'jade'
 app.set 'trust proxy', true
 
+#   Morgan config
+if environment is 'development'
+  logger = morgan("dev")
+else
+  logger = morgan("combined")
+app.use logger
 
 if environment is 'development'
-  app.use express.favicon(path.join(__dirname, "public/favicon.ico"))
-
   if ui is "switz"
     app.use express.static(path.join(__dirname, "public"), maxAge: 3600 * 1000)
   else
     app.use express.static(path.join(__dirname, ".tmp"))
     app.use express.static(path.join(__dirname, "app"))
 
-  app.use express.errorHandler()
+  app.use errorhandler
 
-if environment is 'development'
-  app.use express.favicon(path.join(__dirname, "public/favicon.ico"))
   app.use express.static(path.join(__dirname, "public"), maxAge: 3600 * 1000)
-  app.use express.errorHandler()
+  app.use errorhandler
 
 # Routes
 #app.get "/importer/:artist/rebuild_index", importer.rebuild_index
@@ -116,16 +100,16 @@ app.get '/api/artists/:artist_slug/setlists/:setlist_id', api.setlist.show_id
 app.get '/api/artists/:artist_slug/setlists/on-date/:show_date', api.setlist.on_date
 app.get '/api/artists/:artist_slug/song_stats', api.setlist.song_stats
 
-app.get '/', (req, res) -> res.render 'index'
-
 app.get '/configure.js', (req, res) ->
+  console.log(req)
   res.set 'Cache-Control', 'no-cache'
   res.set 'Content-Type', 'text/javascript'
 
   app_config = {}
   for single_config in config.get('site')
-    if single_config.domain_names.filter((v) -> req.host.indexOf(v) isnt -1).length > 0
+    if single_config.domain_names.filter((v) -> req.hostname.indexOf(v) isnt -1).length > 0
       app_config = single_config
+  console.log(app_config)
 
   json = "window.app_config = " + JSON.stringify(app_config) + ";"
   res.send json + config.googleAnalyticsCode(app_config.google_analytics.id, app_config.google_analytics.domain)
@@ -136,6 +120,33 @@ app.get '*', (req, res) ->
     res.sendfile __dirname + '/public/index.html'
   else
     res.render 'index'
+
+# Express Middleware config
+# Allow access control origin
+app.use (req, res, next) ->
+  res.set
+    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Methods': 'GET'
+
+  next()
+
+app.use (req, res, next) ->
+  res.renderView = (viewName, viewModel) ->
+    suffix = "" # if req.xhr then "" else "_full"
+    res.render viewName + suffix, viewModel
+
+  next()
+
+
+
+app.use bodyParser.urlencoded({extended: false})
+app.use expressValidator
+
+app.use methodOverride
+
+
+app.use favicon(__dirname + '/public/favicon.ico')
+
 
 # Start server
 console.log "Attempting to listen on port %d", (process.env.PORT or 9000)
