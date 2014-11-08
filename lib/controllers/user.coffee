@@ -4,7 +4,7 @@ async					 = require 'async'
 
 bcrypt				 = require 'bcrypt'
 passport			 = require 'passport'
-passport_local = require('passport-local').Strategy
+LocalStrategy	 = require('passport-local').Strategy
 
 sequelize = require('../data/db').seq
 User					 = models.User
@@ -12,7 +12,7 @@ User					 = models.User
 exports.signup = (req, res) ->
 	passsword = null
 	async.waterfall [
-    # make sure that email isn't already taken
+		# make sure that email isn't already taken
 		validateEmail = (callback) ->
 			User.find(where:
 				email_address: req.body.email_address
@@ -54,4 +54,66 @@ exports.signup = (req, res) ->
 				return
 			)
 	]
+	return
+
+#Sign in using username and Password.
+passport.use new LocalStrategy(
+	# these are the fields expected in the POST request
+	usernameField: "username"
+	passwordField: "password"
+
+, (username, password, done) ->
+	console.log('\t\tlogin request for')
+	console.log(username)
+	async.waterfall [
+
+		# look for user with given username
+		findUser = (callback) ->
+			User.find(where:
+				username: username
+			).success((user) ->
+				callback null, user
+				return
+			).failure (error) ->
+				console.log 'user not found'
+				done null, false,
+					message: "User not found"
+
+		# make sure password is valid
+		comparePassword = (user, callback) ->
+			unless user
+				return done(null, false,
+					console.log 'invalid login details'
+					message: "Invalid email or password."
+				)
+			bcrypt.compare password, user.password_digest, (err, match) ->
+				if match
+					done null, user
+				else
+					console.log 'invalid login details'
+					done null, false,
+						message: "Invalid email or password."
+
+
+	]
+	return
+)
+
+#Passport required serialization
+passport.serializeUser (user, done) ->
+	done null, user.id
+	return
+
+
+# passport required deserialize find user given id from serialize
+passport.deserializeUser (id, done) ->
+	User.find(where:
+		id: id
+	).success((user) ->
+		done null, user
+		return
+	).failure (error) ->
+		done error, null
+		return
+
 	return

@@ -18,6 +18,8 @@ methodOverride   = require "method-override"
 errorhandler     = require "errorhandler"
 expressValidator = require 'express-validator'
 session          = require 'express-session'
+cookieParser     = require 'cookie-parser'
+flash            = require 'connect-flash'
 path             = require "path"
 app              = express()
 
@@ -81,15 +83,23 @@ app.use (req, res, next) ->
   next()
 
 
-
 app.use bodyParser.urlencoded({extended: false})
 app.use expressValidator()
 
+app.use cookieParser()
+
 app.use methodOverride 'X-HTTP-Method-Override'
 
-app.use session( {secret: 'phish 4 lyfe'})
+app.use session( {secret: 'phish 4 lyfe'},
+									saveUninitialized: false,
+									resave: false)
 
 app.use favicon(__dirname + '/public/favicon.ico')
+
+app.use passport.initialize()
+app.use passport.session()
+
+app.use flash()
 
 # Routes
 #app.get "/importer/:artist/rebuild_index", importer.rebuild_index
@@ -119,7 +129,23 @@ app.get '/api/artists/:artist_slug/venues', api.artist_venues
 app.get '/api/artists/:artist_slug/venues/:venue_id', api.single_venue
 app.get '/api/artists/:artist_slug/search', api.search
 
+
+app.get '/login', (req, res) ->
+	res.sendFile __dirname + '/public/test.html'
+
+app.get '/amiloggedin', (req, res) ->
+	if req.isAuthenticated()
+		res.send "YES"
+	else
+		res.send "NO"
+
 app.post '/api/users/create', user.signup
+app.post "/login", passport.authenticate("local",
+		failureRedirect: "/login"
+		successRedirect: "/"
+		failureFlash: true
+	)
+
 
 app.get '/api/artists/:artist_slug/setlists', api.setlist.setlist
 app.get '/api/artists/:artist_slug/setlists/:setlist_id', api.setlist.show_id
@@ -142,7 +168,7 @@ app.get '/configure.js', (req, res) ->
 app.get '/', (req, res) -> res.render 'index'
 app.get '*', (req, res) ->
   if environment is "production" and ui is "switz"
-    res.sendfile __dirname + '/public/index.html'
+    res.sendFile __dirname + '/public/index.html'
   else
     res.render 'index'
 
