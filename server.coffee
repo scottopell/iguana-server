@@ -17,6 +17,7 @@ favicon          = require "serve-favicon"
 methodOverride   = require "method-override"
 errorhandler     = require "errorhandler"
 expressValidator = require 'express-validator'
+session          = require 'express-session'
 path             = require "path"
 app              = express()
 
@@ -40,6 +41,7 @@ models.sync(force: false)
 
 # Controllers
 api         = require "./lib/controllers/api"
+user        = require "./lib/controllers/user"
 importer    = require "./lib/controllers/importer"
 
 app.locals = site: config.get 'site'
@@ -54,16 +56,40 @@ else
 app.use logger
 
 if environment is 'development'
-  if ui is "switz"
+  if ui is not "switz"
     app.use express.static(path.join(__dirname, "public"), maxAge: 3600 * 1000)
   else
     app.use express.static(path.join(__dirname, ".tmp"))
     app.use express.static(path.join(__dirname, "app"))
 
-  app.use errorhandler
-
   app.use express.static(path.join(__dirname, "public"), maxAge: 3600 * 1000)
-  app.use errorhandler
+  app.use errorhandler()
+
+# Express Middleware config
+# Allow access control origin
+app.use (req, res, next) ->
+  res.set 'Access-Control-Allow-Origin': '*'
+  res.set 'Access-Control-Allow-Methods': 'GET'
+
+  next()
+
+app.use (req, res, next) ->
+  res.renderView = (viewName, viewModel) ->
+    suffix = "" # if req.xhr then "" else "_full"
+    res.render viewName + suffix, viewModel
+
+  next()
+
+
+
+app.use bodyParser.urlencoded({extended: false})
+app.use expressValidator()
+
+app.use methodOverride 'X-HTTP-Method-Override'
+
+app.use session( {secret: 'phish 4 lyfe'})
+
+app.use favicon(__dirname + '/public/favicon.ico')
 
 # Routes
 #app.get "/importer/:artist/rebuild_index", importer.rebuild_index
@@ -93,7 +119,7 @@ app.get '/api/artists/:artist_slug/venues', api.artist_venues
 app.get '/api/artists/:artist_slug/venues/:venue_id', api.single_venue
 app.get '/api/artists/:artist_slug/search', api.search
 
-app.post '/api/users/create', api.signup
+app.post '/api/users/create', user.signup
 
 app.get '/api/artists/:artist_slug/setlists', api.setlist.setlist
 app.get '/api/artists/:artist_slug/setlists/:setlist_id', api.setlist.show_id
@@ -101,7 +127,6 @@ app.get '/api/artists/:artist_slug/setlists/on-date/:show_date', api.setlist.on_
 app.get '/api/artists/:artist_slug/song_stats', api.setlist.song_stats
 
 app.get '/configure.js', (req, res) ->
-  console.log(req)
   res.set 'Cache-Control', 'no-cache'
   res.set 'Content-Type', 'text/javascript'
 
@@ -121,31 +146,6 @@ app.get '*', (req, res) ->
   else
     res.render 'index'
 
-# Express Middleware config
-# Allow access control origin
-app.use (req, res, next) ->
-  res.set
-    'Access-Control-Allow-Origin': '*'
-    'Access-Control-Allow-Methods': 'GET'
-
-  next()
-
-app.use (req, res, next) ->
-  res.renderView = (viewName, viewModel) ->
-    suffix = "" # if req.xhr then "" else "_full"
-    res.render viewName + suffix, viewModel
-
-  next()
-
-
-
-app.use bodyParser.urlencoded({extended: false})
-app.use expressValidator
-
-app.use methodOverride
-
-
-app.use favicon(__dirname + '/public/favicon.ico')
 
 
 # Start server
