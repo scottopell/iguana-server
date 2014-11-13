@@ -149,6 +149,11 @@ app.post "/login", passport.authenticate("local",
 		failureFlash: true
 	)
 
+app.get "/logout", (req, res) ->
+  req.logout()
+  res.redirect "/"
+  return
+
 
 app.get '/api/artists/:artist_slug/setlists', api.setlist.setlist
 app.get '/api/artists/:artist_slug/setlists/:setlist_id', api.setlist.show_id
