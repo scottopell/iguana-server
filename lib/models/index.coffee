@@ -4,6 +4,7 @@ sequelize = require('../data/db').seq
 mysql			= require('sequelize-mysql').mysql
 
 User			= require('./user').user
+Playlist			= require('./playlist').playlist
 
 Show = sequelize.define 'Show',
 	title				: Sequelize.STRING(255)
@@ -117,8 +118,12 @@ Show.hasMany Track, joinTableName: 'show_has_tracks'
 Year.belongsTo Artist
 Artist.hasMany Year
 
+Track.belongsTo Playlist
+Playlist.hasMany Track
+
 module.exports =
 	User: User
+	Playlist: Playlist
 	Show: Show
 	Venue: Venue
 	Track: Track

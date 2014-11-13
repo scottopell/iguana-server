@@ -44,6 +44,7 @@ models.sync(force: false)
 # Controllers
 api         = require "./lib/controllers/api"
 user        = require "./lib/controllers/user"
+playlist    = require "./lib/controllers/playlist"
 importer    = require "./lib/controllers/importer"
 
 app.locals = site: config.get 'site'
@@ -134,10 +135,12 @@ app.get '/login', (req, res) ->
 	res.sendFile __dirname + '/public/test.html'
 
 app.get '/amiloggedin', (req, res) ->
-	if req.isAuthenticated()
+	if req.user
 		res.send "YES"
 	else
 		res.send "NO"
+
+app.post '/api/playlists/create', playlist.create
 
 app.post '/api/users/create', user.signup
 app.post "/login", passport.authenticate("local",

@@ -8,6 +8,7 @@ passport_local = require('passport-local').Strategy
 
 sequelize = require('../data/db').seq
 User					 = models.User
+Playlist					 = models.Playlist
 
 exports.setlist = require './setlist'
 
