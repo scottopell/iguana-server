@@ -15,7 +15,8 @@ Track					 = models.Track
 exports.create = (req, res) ->
 	async.waterfall [
 		(callback) ->
-			validateLoggedIn(req, res)
+			if !validateLoggedIn(req, res)
+				return
 			callback null
 		# make sure that email isn't already taken
 		validatePlaylistName = (callback) ->
@@ -58,7 +59,8 @@ exports.allTracks = (req, res) ->
 exports.addTrack = (req, res) ->
 	async.waterfall [
 		(callback) ->
-			validateLoggedIn(req, res)
+			if !validateLoggedIn(req, res)
+				return
 			callback null
 		verifyOwner = (callback) ->
 			Playlist.find(where:
@@ -83,3 +85,60 @@ exports.addTrack = (req, res) ->
 					res.redirect '/'
 
 	]
+
+exports.removeTrack = (req, res) ->
+	async.waterfall [
+		(callback) ->
+			if !validateLoggedIn(req, res)
+				return
+			callback null
+		verifyOwner = (callback) ->
+			Playlist.find(where:
+				id: req.param 'playlist_id'
+			).done (error, playlist) ->
+				if playlist.dataValues.id is not req.user.dataValues.id
+					return res.json(error:
+						name: "You're not allowed to edit this playlist"
+					)
+				callback null
+				return
+		(callback) ->
+			Playlist.find(where:
+				id: req.param 'playlist_id'
+			).done (error, playlist) ->
+				Track.find( where: id: req.body.track_id).success (track) ->
+					playlist.removeTrack track
+					res.redirect '/'
+
+	]
+
+exports.delete = (req, res) ->
+	async.waterfall [
+		(callback) ->
+			if !validateLoggedIn(req, res)
+				return
+			callback null
+		# make sure that email isn't already taken
+		validatePlaylistName = (callback) ->
+			Playlist.find(where:
+				name: req.body.name
+			).done (error, playlist) ->
+				if playlist
+					return res.json(error:
+						name: "Playlist name is already being used"
+					)
+				callback null
+				return
+		(callback) ->
+			Playlist.find(where:
+				id: req.param 'playlist_id'
+			).done (error, playlist) ->
+				if (error)
+					console.log("Couldn't find playlist by id when deleting")
+				else
+					playlist.destroy().success ->
+						res.send 200
+
+	]
+	return
+

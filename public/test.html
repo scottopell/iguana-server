@@ -70,6 +70,24 @@
 							<input type="submit" value="add"/>
 					</div>
 			</form>
+			<form action="/api/playlists/1/removeTrack" method="post">
+					<div>
+							<label>track id:</label>
+							<input type="text" name="track_id"/>
+					</div>
+					<div>
+							<input type="submit" value="remove track"/>
+					</div>
+			</form>
+			<form action="/api/playlists/5/delete" method="post">
+					<div>
+							<label>playlist name:</label>
+							<input type="text" name="name"/>
+					</div>
+					<div>
+							<input type="submit" value="delete"/>
+					</div>
+			</form>
     </div>
     <footer>
       <div class="container">

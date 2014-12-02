@@ -15,7 +15,8 @@ exports.setlist = require './setlist'
 exports.validateLoggedIn = (req, res) ->
 	if not req.user
 		res.redirect '/login'
-	return
+		return false
+	return true
 
 error = (res) ->
 	return (err) ->
