@@ -4,6 +4,8 @@ environment = process.env.NODE_ENV
 ui = "iguana"
 # ui = "switz"
 
+console.log "NODE_ENV: " + process.env.NODE_ENV
+
 if environment is "production"
   require('strong-agent').profile()
   require 'newrelic'
