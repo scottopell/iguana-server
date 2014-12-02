@@ -1,10 +1,10 @@
 {
-	"env": "production",
+	"env": "staging",
 	"production": {
 		"db": {
-			"host": "172.17.0.7",
+			"host": "172.17.0.19",
 			"username": "admin",
-			"password": "nCo5Or9Jgch127IN",
+			"password": "wbLRtrZTWOhBJGr4",
 			"database": "db"
 		}
 	},
@@ -18,9 +18,9 @@
 	},
 	"staging": {
 		"db": {
-			"host": "172.17.0.19",
+			"host": "172.17.0.7",
 			"username": "admin",
-			"password": "wbLRtrZTWOhBJGr4",
+			"password": "nCo5Or9Jgch127IN",
 			"database": "db"
 		}
 	},
