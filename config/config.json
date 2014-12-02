@@ -16,6 +16,14 @@
 			"database": "iguana"
 		}
 	},
+	"staging": {
+		"db": {
+			"host": "172.17.0.19",
+			"username": "admin",
+			"password": "wbLRtrZTWOhBJGr4",
+			"database": "db"
+		}
+	},
 	"site": [
 		{
 			"name": "Marco All Day",
