@@ -43,8 +43,7 @@ exports.create = (req, res) ->
 
 exports.all = (req, res) ->
 	Playlist.all_with_length().success (playlists) ->
-		res.json playlists
-		res.send
+		res.json is_success: true, data: playlists
 
 exports.allTracks = (req, res) ->
 	Playlist.find( where:
@@ -52,7 +51,7 @@ exports.allTracks = (req, res) ->
 	).success (playlist) ->
 		if playlist
 			playlist.getTracks().success (tracks) ->
-				res.json tracks
+				res.json is_success: true, data: tracks
 		else
 			res.send "Error"
 
