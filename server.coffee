@@ -4,10 +4,10 @@ environment = process.env.NODE_ENV
 ui = "iguana"
 # ui = "switz"
 
-if environment is "production"
-  require('strong-agent').profile()
-  require 'newrelic'
-  require('graphdat').config { socketFile: '/host_tmp/gd.agent.sock', debug: true }
+#if environment is "production"
+#  require('strong-agent').profile()
+#  require 'newrelic'
+#  require('graphdat').config { socketFile: '/host_tmp/gd.agent.sock', debug: true }
 
 # Module dependencies.
 express          = require "express"

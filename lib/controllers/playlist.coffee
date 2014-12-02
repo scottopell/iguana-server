@@ -53,7 +53,7 @@ exports.allTracks = (req, res) ->
 			playlist.getTracks().success (tracks) ->
 				res.json is_success: true, data: tracks
 		else
-			res.send "Error"
+			res.status(404).send "Error"
 
 exports.addTrack = (req, res) ->
 	async.waterfall [
