@@ -5,6 +5,7 @@ validateLoggedIn = require('./api').validateLoggedIn
 
 sequelize = require('../data/db').seq
 Playlist					 = models.Playlist
+Track					 = models.Track
 
 
 ###############################
@@ -28,8 +29,9 @@ exports.create = (req, res) ->
 				callback null
 				return
 		createPlaylist = (callback) ->
+			console.log(req.user)
 			Playlist.create(
-				name: req.body.name
+				name: req.param 'name'
 				owner: req.user.id
 			).success((playlist) ->
 				res.json redirect: "/playlist"
@@ -37,3 +39,47 @@ exports.create = (req, res) ->
 			)
 	]
 	return
+
+exports.all = (req, res) ->
+	Playlist.all_with_length().success (playlists) ->
+		res.json playlists
+		res.send
+
+exports.allTracks = (req, res) ->
+	Playlist.find( where:
+		id: req.param 'playlist_id'
+	).success (playlist) ->
+		if playlist
+			playlist.getTracks().success (tracks) ->
+				res.json tracks
+		else
+			res.send "Error"
+
+exports.addTrack = (req, res) ->
+	async.waterfall [
+		(callback) ->
+			validateLoggedIn(req, res)
+			callback null
+		verifyOwner = (callback) ->
+			Playlist.find(where:
+				id: req.param 'playlist_id'
+			).done (error, playlist) ->
+				console.log(playlist.dataValues.id)
+				console.log(req.user.dataValues.id)
+				if playlist.dataValues.id is not req.user.dataValues.id
+					return res.json(error:
+						name: "You're not allowed to edit this playlist"
+					)
+				callback null
+				return
+		(callback) ->
+			Playlist.find(where:
+				id: req.param 'playlist_id'
+			).done (error, playlist) ->
+				Track.find( where: id: req.body.track_id).success (track) ->
+					console.log( req.body)
+					console.log( req.body.track_id)
+					playlist.addTrack track
+					res.redirect '/'
+
+	]

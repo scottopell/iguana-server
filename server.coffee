@@ -134,6 +134,11 @@ app.get '/api/artists/:artist_slug/search', api.search
 app.get '/login', (req, res) ->
 	res.sendFile __dirname + '/public/test.html'
 
+app.get "/logout", (req, res) ->
+  req.logout()
+  res.redirect "/"
+  return
+
 app.get '/amiloggedin', (req, res) ->
 	if req.user
 		res.send "YES"
@@ -141,6 +146,9 @@ app.get '/amiloggedin', (req, res) ->
 		res.send "NO"
 
 app.post '/api/playlists/create', playlist.create
+app.get '/api/playlists/all', playlist.all
+app.get '/api/playlists/:playlist_id/all', playlist.allTracks
+app.post '/api/playlists/:playlist_id/addTrack', playlist.addTrack
 
 app.post '/api/users/create', user.signup
 app.post "/login", passport.authenticate("local",
@@ -148,11 +156,6 @@ app.post "/login", passport.authenticate("local",
 		successRedirect: "/"
 		failureFlash: true
 	)
-
-app.get "/logout", (req, res) ->
-  req.logout()
-  res.redirect "/"
-  return
 
 
 app.get '/api/artists/:artist_slug/setlists', api.setlist.setlist

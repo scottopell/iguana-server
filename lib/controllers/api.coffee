@@ -15,6 +15,7 @@ exports.setlist = require './setlist'
 exports.validateLoggedIn = (req, res) ->
 	if not req.user
 		res.redirect '/login'
+	return
 
 error = (res) ->
 	return (err) ->
@@ -199,7 +200,6 @@ exports.single_show = (req, res) ->
 exports.artist_show_by_date = (req, res) ->
 	models.Artist.find(where: slug: req.param('artist_slug')).error(error(res)).success (artist) ->
 		return not_found(res) if not artist
-		console.log 'hi'
 		artist.getShows(
 			order: 'weighted_avg DESC'
 			where: ['display_date = ?', req.param 'show_date']
