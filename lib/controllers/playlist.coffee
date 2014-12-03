@@ -46,12 +46,24 @@ exports.all = (req, res) ->
 		res.json is_success: true, data: playlists
 
 exports.allTracks = (req, res) ->
-	Playlist.find( where:
-		id: req.param 'playlist_id'
-	).success (playlist) ->
+	Playlist.find({
+		where:
+			id: req.param 'playlist_id'
+		include: [
+			{
+				model: models.Track
+				as: 'Tracks'
+				include: [
+					{
+						model: models.Show
+						as: 'Show'
+					}
+				]
+			}
+		]
+	}).success (playlist) ->
 		if playlist
-			playlist.getTracks().success (tracks) ->
-				res.json is_success: true, data: tracks
+			res.json is_success: true, data: playlist
 		else
 			res.status(404).send "Error"
 

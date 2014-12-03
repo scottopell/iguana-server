@@ -1,10 +1,9 @@
 Sequelize = require('sequelize-mysql').sequelize
 sequelize = require('../data/db').seq
 mysql			= require('sequelize-mysql').mysql
+models = require './index'
 
-
-
-module.exports.playlist = sequelize.define "Playlist",{
+Playlist = sequelize.define "Playlist",{
 	name:
 		type: Sequelize.STRING
 		allowNull: false
@@ -19,3 +18,5 @@ module.exports.playlist = sequelize.define "Playlist",{
 				sequelize.query('SELECT p.*, count(t.PlaylistID) AS count FROM Playlists p LEFT JOIN Tracks t on p.id = t.PlaylistID group by p.name, p.owner, p.id, p.createdAt, p.updatedAt;').success (rows)->
 					return rows
 	}
+
+module.exports.playlist = Playlist
