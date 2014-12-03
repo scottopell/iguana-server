@@ -1,10 +1,10 @@
 {
-	"env": "production",
+	"env": "staging",
 	"production": {
 		"db": {
-			"host": "172.17.0.7",
+			"host": "172.17.0.19",
 			"username": "admin",
-			"password": "nCo5Or9Jgch127IN",
+			"password": "wbLRtrZTWOhBJGr4",
 			"database": "db"
 		}
 	},
@@ -12,8 +12,16 @@
 		"db": {
 			"host": "localhost",
 			"username": "root",
-			"password": "dogline",
+			"password": "snowman42",
 			"database": "iguana"
+		}
+	},
+	"staging": {
+		"db": {
+			"host": "172.17.0.7",
+			"username": "admin",
+			"password": "nCo5Or9Jgch127IN",
+			"database": "db"
 		}
 	},
 	"site": [

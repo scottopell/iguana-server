@@ -43,18 +43,29 @@ exports.create = (req, res) ->
 
 exports.all = (req, res) ->
 	Playlist.all_with_length().success (playlists) ->
-		res.json playlists
-		res.send
+		res.json is_success: true, data: playlists
 
 exports.allTracks = (req, res) ->
-	Playlist.find( where:
-		id: req.param 'playlist_id'
-	).success (playlist) ->
+	Playlist.find({
+		where:
+			id: req.param 'playlist_id'
+		include: [
+			{
+				model: models.Track
+				as: 'Tracks'
+				include: [
+					{
+						model: models.Show
+						as: 'Show'
+					}
+				]
+			}
+		]
+	}).success (playlist) ->
 		if playlist
-			playlist.getTracks().success (tracks) ->
-				res.json tracks
+			res.json is_success: true, data: playlist
 		else
-			res.send "Error"
+			res.status(404).send "Error"
 
 exports.addTrack = (req, res) ->
 	async.waterfall [
