@@ -21,6 +21,7 @@ session          = require 'express-session'
 cookieParser     = require 'cookie-parser'
 flash            = require 'connect-flash'
 path             = require "path"
+cors             = require 'cors'
 app              = express()
 
 # passport
@@ -58,6 +59,8 @@ else
   logger = morgan("combined")
 app.use logger
 
+app.use cors({ credentials: true, origin: 'http://localhost:8080'})
+
 if environment is 'development'
   if ui is not "switz"
     app.use express.static(path.join(__dirname, "public"), maxAge: 3600 * 1000)
@@ -70,11 +73,6 @@ if environment is 'development'
 
 # Express Middleware config
 # Allow access control origin
-app.use (req, res, next) ->
-  res.set 'Access-Control-Allow-Origin': '*'
-  res.set 'Access-Control-Allow-Methods': 'GET'
-
-  next()
 
 app.use (req, res, next) ->
   res.renderView = (viewName, viewModel) ->
@@ -136,9 +134,15 @@ comb_auth = (req, res, next) ->
 		console.log("already authed")
 		return next()
 	passport.authenticate('local', (err, user, info) ->
+		console.log('local auth')
+		console.log err
+		console.log info
 		if (err || !user)
 			passport.authenticate('basic', {session: false }, (err, user, info) ->
 				if (err || !user)
+					console.log 'all auth methods failed'
+					console.log err
+					console.log info
 					return res.json 403, is_success: false, data: null
 				else
 					console.log("Basic auth succeeded")
@@ -169,9 +173,11 @@ app.post '/api/playlists/:playlist_id/removeTrack', comb_auth,  playlist.removeT
 app.post '/api/playlists/:playlist_id/delete', comb_auth, playlist.delete
 
 app.post '/api/users/create', user.signup
-app.post "/login", passport.authenticate("local"), (req, res, next) ->
-	res.redirect '/'
-	return
+app.post "/login", passport.authenticate("local",
+			failureRedirect: "/login"
+			successRedirect: "/"
+			failureFlash: true
+		)
 
 
 app.get '/api/artists/:artist_slug/setlists', api.setlist.setlist
