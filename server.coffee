@@ -162,7 +162,7 @@ app.get "/logout", (req, res) ->
 	res.redirect "/"
 	return
 
-app.get '/amiloggedin', comb_auth, (req, res) ->
+app.get '/api/users/user_validate', comb_auth, (req, res) ->
 	res.json 200, is_success: true, data: null
 
 app.post '/api/playlists/create', comb_auth, playlist.create
