@@ -58,7 +58,20 @@ exports.allTracks = (req, res) ->
 		]
 	}).success (playlist) ->
 		if playlist
-			res.json is_success: true, data: playlist
+			models.Show.findAll(where: id: playlist.tracks.map((v) -> v.ShowId))
+				.success((shows) ->
+					show_map = {}
+
+					shows.forEach (v) -> show_map[v.id] = v.toJSON()
+					playlist.tracks = playlist.tracks.map (v) ->
+						v = v.toJSON()
+						v.show = show_map[v.ShowId]
+						return v
+
+					res.json is_success: true, data: playlist
+				)
+				.error (err) ->
+					res.status(404).send "Error"
 		else
 			res.status(404).send "Error"
 
