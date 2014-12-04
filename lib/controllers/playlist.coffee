@@ -1,7 +1,6 @@
 models				 = require '../models'
 winston				 = require 'winston'
 async					 = require 'async'
-validateLoggedIn = require('./api').validateLoggedIn
 
 sequelize = require('../data/db').seq
 Playlist					 = models.Playlist
@@ -14,10 +13,6 @@ Track					 = models.Track
 
 exports.create = (req, res) ->
 	async.waterfall [
-		(callback) ->
-			if !validateLoggedIn(req, res)
-				return
-			callback null
 		# make sure that email isn't already taken
 		validatePlaylistName = (callback) ->
 			Playlist.find(where:
@@ -69,10 +64,6 @@ exports.allTracks = (req, res) ->
 
 exports.addTrack = (req, res) ->
 	async.waterfall [
-		(callback) ->
-			if !validateLoggedIn(req, res)
-				return
-			callback null
 		verifyOwner = (callback) ->
 			Playlist.find(where:
 				id: req.param 'playlist_id'
@@ -99,10 +90,6 @@ exports.addTrack = (req, res) ->
 
 exports.removeTrack = (req, res) ->
 	async.waterfall [
-		(callback) ->
-			if !validateLoggedIn(req, res)
-				return
-			callback null
 		verifyOwner = (callback) ->
 			Playlist.find(where:
 				id: req.param 'playlist_id'
@@ -125,10 +112,6 @@ exports.removeTrack = (req, res) ->
 
 exports.delete = (req, res) ->
 	async.waterfall [
-		(callback) ->
-			if !validateLoggedIn(req, res)
-				return
-			callback null
 		# make sure that email isn't already taken
 		validatePlaylistName = (callback) ->
 			Playlist.find(where:

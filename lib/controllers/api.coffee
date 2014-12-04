@@ -12,12 +12,6 @@ Playlist					 = models.Playlist
 
 exports.setlist = require './setlist'
 
-exports.validateLoggedIn = (req, res) ->
-	if not req.user
-		res.redirect '/login'
-		return false
-	return true
-
 error = (res) ->
 	return (err) ->
 		res.json is_success: false, data: err
