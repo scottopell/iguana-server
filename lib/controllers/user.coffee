@@ -5,6 +5,7 @@ async					 = require 'async'
 bcrypt				 = require 'bcrypt'
 passport			 = require 'passport'
 LocalStrategy	 = require('passport-local').Strategy
+BasicStrategy	 = require('passport-http').BasicStrategy
 
 sequelize = require('../data/db').seq
 User					 = models.User
@@ -97,6 +98,21 @@ passport.use new LocalStrategy(
 
 	]
 	return
+)
+
+passport.use new BasicStrategy((username, password, done) ->
+	console.log(username)
+	User.find(where:
+		username: username
+	).success((user) ->
+		bcrypt.compare password, user.password_digest, (err, match) ->
+			if match
+				return done(null, user)
+			else
+				return done(null, false)
+	).failure((err) ->
+		return done(done, false)
+	)
 )
 
 #Passport required serialization

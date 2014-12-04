@@ -130,6 +130,24 @@ app.get '/api/artists/:artist_slug/venues', api.artist_venues
 app.get '/api/artists/:artist_slug/venues/:venue_id', api.single_venue
 app.get '/api/artists/:artist_slug/search', api.search
 
+comb_auth = (req, res, next) ->
+	console.log("checking auth...")
+	if req.isAuthenticated()
+		console.log("already authed")
+		return next()
+	passport.authenticate('local', (err, user, info) ->
+		if (err || !user)
+			passport.authenticate('basic', {session: false }, (err, user, info) ->
+				if (err || !user)
+					res.redirect('/login')
+					return next()
+				console.log("Basic auth succeeded")
+				return next()
+			)(req, res, next)
+			console.log("session auth succeeded")
+		return next()
+	)(req, res, next)
+	return
 
 app.get '/login', (req, res) ->
 	res.sendFile __dirname + '/public/test.html'
@@ -139,25 +157,20 @@ app.get "/logout", (req, res) ->
   res.redirect "/"
   return
 
-app.get '/amiloggedin', (req, res) ->
-	if req.user
-		res.send "YES"
-	else
-		res.send "NO"
+app.get '/amiloggedin', comb_auth, (req, res) ->
+	res.send "YES"
 
-app.post '/api/playlists/create', playlist.create
-app.get '/api/playlists/all', playlist.all
-app.get '/api/playlists/:playlist_id/all', playlist.allTracks
-app.post '/api/playlists/:playlist_id/addTrack', playlist.addTrack
-app.post '/api/playlists/:playlist_id/removeTrack', playlist.removeTrack
-app.post '/api/playlists/:playlist_id/delete', playlist.delete
+app.post '/api/playlists/create', comb_auth, playlist.create
+app.get  '/api/playlists/all', playlist.all
+app.get  '/api/playlists/:playlist_id/all', playlist.allTracks
+app.post '/api/playlists/:playlist_id/addTrack', comb_auth, playlist.addTrack
+app.post '/api/playlists/:playlist_id/removeTrack', comb_auth,  playlist.removeTrack
+app.post '/api/playlists/:playlist_id/delete', comb_auth, playlist.delete
 
 app.post '/api/users/create', user.signup
-app.post "/login", passport.authenticate("local",
-		failureRedirect: "/login"
-		successRedirect: "/"
-		failureFlash: true
-	)
+app.post "/login", passport.authenticate("local"), (req, res, next) ->
+	res.redirect '/'
+	return
 
 
 app.get '/api/artists/:artist_slug/setlists', api.setlist.setlist
