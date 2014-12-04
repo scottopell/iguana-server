@@ -139,13 +139,14 @@ comb_auth = (req, res, next) ->
 		if (err || !user)
 			passport.authenticate('basic', {session: false }, (err, user, info) ->
 				if (err || !user)
-					res.redirect('/login')
+					return res.json 403, is_success: false, data: null
+				else
+					console.log("Basic auth succeeded")
 					return next()
-				console.log("Basic auth succeeded")
-				return next()
 			)(req, res, next)
+		else
 			console.log("session auth succeeded")
-		return next()
+			return next()
 	)(req, res, next)
 	return
 
@@ -153,12 +154,12 @@ app.get '/login', (req, res) ->
 	res.sendFile __dirname + '/public/test.html'
 
 app.get "/logout", (req, res) ->
-  req.logout()
-  res.redirect "/"
-  return
+	req.logout()
+	res.redirect "/"
+	return
 
 app.get '/amiloggedin', comb_auth, (req, res) ->
-	res.send "YES"
+	res.json 200, is_success: true, data: null
 
 app.post '/api/playlists/create', comb_auth, playlist.create
 app.get  '/api/playlists/all', playlist.all
