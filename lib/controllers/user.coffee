@@ -13,17 +13,6 @@ User					 = models.User
 exports.signup = (req, res) ->
 	passsword = null
 	async.waterfall [
-		# make sure that email isn't already taken
-		validateEmail = (callback) ->
-			User.find(where:
-				email_address: req.body.email_address
-			).done (error, user) ->
-				if user
-					return res.json(error:
-						email_address: "Email is already being used"
-					)
-				callback null
-				return
 		# make sure username has not already been taken
 		validateUsername = (callback) ->
 			User.find(where:
@@ -47,12 +36,15 @@ exports.signup = (req, res) ->
 		createUser = (hashed_password, callback) ->
 			User.create(
 				username: req.body.username
-				email_address: req.body.email_address
 				password_digest: hashed_password
 			).success((user) ->
 				req.user = req.session.user = user
 				res.json redirect: "/login"
 				return
+			).error((err) ->
+				console.log 'Error creating the user'
+				console.log err
+				res.send 400
 			)
 	]
 	return

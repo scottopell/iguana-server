@@ -16,9 +16,6 @@ module.exports.user = sequelize.define "User",{
 
 	email_address:
 		type: Sequelize.STRING
-		validate:
-			isEmail:
-				msg: "Email address is invalid"
 
 	},{
 	classMethods:
