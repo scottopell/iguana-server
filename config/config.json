@@ -2,10 +2,10 @@
 	"env": "staging",
 	"production": {
 		"db": {
-			"host": "172.17.0.19",
-			"username": "admin",
-			"password": "wbLRtrZTWOhBJGr4",
-			"database": "db"
+			"host": "mariadb",
+			"username": "iguana-staging",
+			"password": "WLd6WqCpg34wDgEY",
+			"database": "ig_staging"
 		}
 	},
 	"development": {
